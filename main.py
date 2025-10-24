@@ -1,72 +1,45 @@
 import numpy as np
 
-def mnozenie(A, B):
-    m = A.shape[0]
-    n = A.shape[1]
-    k = B.shape[1]
-
-    C = np.zeros((m, k), dtype=float)
-
-    for i in range(m):
-        for j in range(k):
-            suma = 0
-            for s in range(n):
-                suma += A[i][s] * B[s][j]
-            C[i][j] = suma
-    return C
-
-
-def wyznacznik(A):
+def odwaracanie_macierzy(A):
     A = np.copy(A)
 
     n = A.shape[0]
-    det = A[0][0]
+    B = np.zeros((n, 2*n), dtype=float)
 
-    for s in range(n-1):
-        for i in range(s+1, n):
-            for j in range(s+1, n):
-                A[i][j] = A[i][j] - A[i][s] * A[s][j] / A[s][s]
-        det *= A[s+1][s+1]
-    return det
+    for i in range(n):
+        for j in range(n):
+            B[i][j] = A[i][j]
 
-# np.linalg.inv() odwrotna
+            if i is j:
+                B[i][j+n] = 1
+            else:
+                B[i][j+n] = 0
 
-
-print()
-print(f"{'-'*15}Zad 1{'-'*15}")
-print()
-
-A = np.array([[10,	3,	7,	-8],	
-              [0,	5,	8,	-8],
-              [-4,	-8,	-4,	6],	
-              [-7,	-1,	-10,	4],	
-              [-3,	0,	8,	1]],
-      dtype=float)
-
-B = np.array([[1,	-8,	-10],	
-              [4,	-7,	6],	
-              [-4,	-6,	-10	],
-              [-6,	0,	8]],
-      dtype=float)
-
-# print(f"wynik: \n{mnozenie(A, B)}")
-# print(f"oczekiwany wynik: \n{np.matmul(A, B)}")
-
-print(f"wynik: \n{np.array2string(mnozenie(A, B), formatter={'float_kind': lambda x: "%.10f" % x})}")
-print(f"oczekiwany wynik: \n{np.array2string(np.matmul(A, B), formatter={'float_kind': lambda x: "%.10f" % x})}")
-print(f"roznica: \n{np.array2string(np.matmul(A, B)-mnozenie(A,B), formatter={'float_kind': lambda x: "%.10f" % x})}")
-
-print()
-print(f"{'-'*15}Zad 2{'-'*15}")
-print()
-
-D = np.array([  [-7,	-2,	9,	5],	
-                [5,	-7,	-9,	-8],	
-                [1,	3,	2,	-3],	
-                [-1,	6,	3,	9]], dtype=float)
-
-print(f"wynik: {wyznacznik(D):.10f}")
-print(f"oczekiwany wynik: {np.linalg.det(D):.10f}")
-print(f"roznica: {np.abs(np.linalg.det(D)-wyznacznik(D)):.10f}")
+    print(f"macierz rozszerzona: \n{np.array2string(B, formatter={'float_kind': lambda x: "%.10f" % x})}")
 
 
+    for s in range(0, n):
+        c = B[s][s]
+        B[s][s] = B[s][s] - 1
+        for j in range(s+1, 2*n):
+            d = B[s][j] / c
+            for i in range(0, n):
+                B[i][j] = B[i][j] - d * B[i][s]
+    
+    odwA = np.zeros(A.shape, dtype=float)
+
+    for i in range(n):
+        for j in range(n, 2*n):
+            odwA[i][j-n] = B[i][j]
+    return odwA
+
+
+
+E = np.array([[-3,	-4,	1,	1]	,
+[-5,	-1,	3,	5]	,
+[-3,	-5,	-4,	3]	,
+[-4,	3,	5,	2]], dtype=float)
+
+print(f"macierz odwrotna: \n{np.array2string(odwaracanie_macierzy(E), formatter={'float_kind': lambda x: "%.10f" % x})}")
+
+print(f"wynik mnozenia: \n{np.array2string(np.matmul(odwaracanie_macierzy(E), E), formatter={'float_kind': lambda x: "%.10f" % x})}")
